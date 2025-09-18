@@ -29,6 +29,7 @@ archive_extensions:
   - ".ace"
 
 log_level: "DEBUG"
+
 metadata_extensions:
   - ".pdf"
   - ".docx"
@@ -39,3 +40,11 @@ metadata_extensions:
   - ".tiff"
   - ".bmp"
   - ".dcm"
+
+# Enhanced configuration for stress testing and security
+max_extraction_files: 10000          # Maximum files to extract from an archive
+max_extraction_size: 10737418240     # Maximum total size of extracted files (10GB)
+max_compression_ratio: 100           # Maximum compression ratio to detect zip bombs
+max_extraction_depth: 5              # Maximum recursion depth for nested archives
+max_scan_size: 524288000             # Maximum file size for antivirus scanning (500MB)
+scan_timeout: 300                    # Antivirus scan timeout in seconds
