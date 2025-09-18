@@ -17280,3 +17280,5 @@ End Date:   2025:09:18 20:33:56
 2025-09-18 20:33:56,265 INFO Orchestrator.Metadata: Metadata indexed for /home/user/SecureDownloads_Organized/UnknownSender/UnknownDate/6d4813e5_0043473__24MX_info@24mx.co.uk__2017-02-26.eml
 2025-09-18 20:33:56,265 INFO Orchestrator: Completed processing: /home/user/SecureDownloads_Organized/UnknownSender/UnknownDate/6d4813e5_0043473__24MX_info@24mx.co.uk__2017-02-26.eml
 2025-09-18 20:33:56,265 INFO Orchestrator: Detected file: /home/user/SecureDownloads/0042225__Ticketmaster_emai@mailings.ticketmaster.co.uk__2017-06-22.eml
+2025-09-18 19:39:51,406 INFO Orchestrator: SecureDownloads Orchestrator started.
+2025-09-18 19:39:51,407 INFO Orchestrator: Scanning for existing files in /home/user/SecureDownloads...
