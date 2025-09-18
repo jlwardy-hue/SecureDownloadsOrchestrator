@@ -1,9 +1,9 @@
-print ("Loaded NEW organize.py with OCR/content extraction and smart grouping!")
 import os
 import shutil
 import hashlib
 import logging
 import re
+import io
 from datetime import datetime
 
 try:
@@ -17,28 +17,36 @@ except ImportError:
     docx = None
     extract_pdf_text = None
 
-def is_springfield_file(filepath):
-    """Enhanced Springfield file detection with multiple criteria."""
+# Initialize logging for the organize module
+logger = logging.getLogger("Orchestrator.Organize")
+logger.debug("Organization module with OCR/content extraction and smart grouping initialized")
+
+def is_keyword_match_file(filepath, config):
+    """Enhanced content-based file detection with configurable keywords."""
     base_name = os.path.basename(filepath).lower()
     
-    # Check various Springfield patterns
-    springfield_patterns = [
-        "springfield",
-        "spring_field", 
-        "spring-field",
-        "simpsons",
-        "homer",
-        "marge",
-        "bart",
-        "lisa",
-        "maggie"
-    ]
+    # Get keyword groups from config, with Springfield as default example
+    keyword_groups = config.get('content_organization', {
+        'Springfield': [
+            "springfield",
+            "spring_field", 
+            "spring-field",
+            "simpsons",
+            "homer",
+            "marge",
+            "bart",
+            "lisa",
+            "maggie"
+        ]
+    })
     
-    for pattern in springfield_patterns:
-        if pattern in base_name:
-            return True
-            
-    return False
+    # Check each keyword group
+    for folder_name, keywords in keyword_groups.items():
+        for keyword in keywords:
+            if keyword.lower() in base_name:
+                return folder_name
+                
+    return None
 
 IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".tiff", ".tif", ".bmp", ".gif", ".webp", ".svg", ".ico", ".raw", ".heic", ".heif"]
 
@@ -144,12 +152,12 @@ def organize_file(filepath, config):
         logger.debug(f"Identified as image file, organizing to Photos folder")
         os.makedirs(dest_dir, exist_ok=True)
         logger.debug(f"Created/verified Photos directory: {dest_dir}")
-    # 2. SPRINGFIELD GROUPING
-    elif is_springfield_file(filepath):
-        dest_dir = os.path.join(org_dir, "Springfield")
-        logger.debug(f"Identified as Springfield file, organizing to Springfield folder")
+    # 2. CONTENT-BASED KEYWORD GROUPING (configurable)
+    elif (keyword_folder := is_keyword_match_file(filepath, config)) is not None:
+        dest_dir = os.path.join(org_dir, keyword_folder)
+        logger.debug(f"Identified as {keyword_folder} file, organizing to {keyword_folder} folder")
         os.makedirs(dest_dir, exist_ok=True)
-        logger.debug(f"Created/verified Springfield directory: {dest_dir}")
+        logger.debug(f"Created/verified {keyword_folder} directory: {dest_dir}")
     # 3. DEFAULT: SENDER/DATE
     else:
         logger.debug(f"Processing as default file type, extracting text content")

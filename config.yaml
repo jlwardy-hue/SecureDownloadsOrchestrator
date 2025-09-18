@@ -2,8 +2,31 @@ directories:
   watch: "/home/user/SecureDownloads"
   quarantine: "/home/user/Quarantine"
   organized: "/home/user/SecureDownloads_Organized"
-  tmp_unzip: "/home/user/SecureDownloads/tmp_unzip"
+  tmp_unzip: "/home/user/SecureDownloads/tmp_unzip"  # Deprecated - now using secure random temp dirs
   logs: "./logs/orchestrator.log"
+
+# Content-based organization: organize files containing specific keywords into named folders
+# Configure any number of keyword groups for business names, subjects, projects, etc.
+content_organization:
+  Springfield:  # Example folder for Springfield/Simpsons content
+    - "springfield"
+    - "spring_field"
+    - "spring-field"
+    - "simpsons"
+    - "homer"
+    - "marge"
+    - "bart"
+    - "lisa"
+    - "maggie"
+  # Business:  # Example: uncomment and configure for business documents
+  #   - "company_name"
+  #   - "business"
+  #   - "contract"
+  #   - "invoice"
+  # Projects:  # Example: uncomment and configure for project files
+  #   - "project_alpha"
+  #   - "alpha"
+  #   - "beta_project"
 
 virus_scanning:
   clamscan_path: "echo"  # Mock clamscan for testing

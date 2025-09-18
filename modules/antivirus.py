@@ -2,6 +2,10 @@ import subprocess
 import os
 import logging
 
+# Initialize logging for the antivirus module
+logger = logging.getLogger("Orchestrator.Antivirus")
+logger.debug("Antivirus scanning module initialized")
+
 def scan_file(filepath, config):
     logger = logging.getLogger("Orchestrator.Antivirus")
     # Step 1: ClamAV

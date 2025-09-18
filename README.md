@@ -6,17 +6,29 @@ A Python-based file monitoring and organization system that automatically proces
 
 - **Automated File Organization**: Intelligently organizes files into folders based on content type
   - **Photos Folder**: Images (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.tiff`, `.bmp`, `.svg`, `.ico`, `.raw`, `.heic`, `.heif`)
-  - **Springfield Folder**: Files containing Simpson-related keywords (`springfield`, `homer`, `bart`, `lisa`, `marge`, `maggie`, `simpsons`)
+  - **Content-Based Folders**: Configurable keyword-based organization (e.g., business names, projects, subjects)
   - **Sender/Date Folders**: Other files organized by extracted sender and date information
 
 - **Security Features**: 
   - Virus scanning with ClamAV
-  - File quarantine capability
+  - File quarantine capability  
   - Hash-based duplicate detection
+  - Secure random temporary directories for archive extraction
 
-- **Archive Support**: Automatically extracts and processes archives (`.zip`, `.tar`, `.rar`, `.7z`, etc.)
+- **Archive Support**: Automatically extracts and processes archives (`.zip`, `.tar`, `.rar`, `.7z`, etc.) using secure temporary directories
 
 - **Metadata Extraction**: Creates searchable index of processed files
+
+## Security Features
+
+The SecureDownloadsOrchestrator implements several security hardening measures:
+
+- **Secure Archive Extraction**: Uses cryptographically secure random temporary directories (`tempfile.mkdtemp()`) instead of predictable paths, preventing directory prediction attacks
+- **Virus Scanning Integration**: ClamAV integration with quarantine capability for infected files  
+- **Binary Content Handling**: Proper binary file processing without lossy encoding
+- **Hash-based Deduplication**: SHA256 file hashing prevents duplicate processing
+- **Safe File Organization**: Sanitized directory and filename handling
+- **Comprehensive Logging**: Debug-level visibility into all security operations
 
 ## Installation
 
@@ -37,6 +49,18 @@ directories:
   quarantine: "/path/to/quarantine"   # Where infected files go
   logs: "./logs/orchestrator.log"     # Log file location
 
+# Content-based organization: organize files containing specific keywords into named folders
+content_organization:
+  Springfield:  # Example folder for Springfield/Simpsons content
+    - "springfield"
+    - "simpsons"
+    - "homer"
+    - "bart"
+  Business:  # Example: customize for your business documents
+    - "company_name"
+    - "business"
+    - "contract"
+
 log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
 ```
 
@@ -46,10 +70,34 @@ log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
 Files with image extensions are automatically moved to `organized/Photos/`:
 - Supported formats: PNG, JPG, JPEG, GIF, WebP, TIFF, BMP, SVG, ICO, RAW, HEIC, HEIF
 
-### Springfield Folder  
-Files containing any of these keywords in the filename are moved to `organized/Springfield/`:
-- `springfield`, `spring_field`, `spring-field`
-- `simpsons`, `homer`, `marge`, `bart`, `lisa`, `maggie`
+### Content-Based Organization (Configurable)
+Files containing specific keywords in their filename are moved to corresponding folders. This is fully configurable in `config.yaml`:
+
+**Example Configuration:**
+```yaml
+content_organization:
+  Springfield:  # Example: Simpsons content
+    - "springfield"
+    - "simpsons" 
+    - "homer"
+    - "bart"
+    - "lisa"
+    - "marge"
+  Business:  # Example: Business documents
+    - "company_name"
+    - "business"
+    - "contract"
+    - "invoice"
+  ProjectAlpha:  # Example: Project files
+    - "project_alpha" 
+    - "alpha"
+```
+
+**How it works:**
+- Files containing any configured keyword are moved to the corresponding folder
+- Keywords are matched case-insensitively against the filename
+- You can configure any number of keyword groups for different organizations (business names, projects, subjects, etc.)
+- Springfield is provided as a working example - customize for your needs
 
 ### Default Organization
 Other files are organized by extracted sender and date into folders like:
@@ -57,14 +105,15 @@ Other files are organized by extracted sender and date into folders like:
 
 ## Troubleshooting
 
-### Issue: Files not being organized into Photos or Springfield folders
+### Issue: Files not being organized into Photos or Content-Based folders
 
-**Symptoms**: Image files or Springfield-related files end up in sender/date folders instead of Photos/Springfield
+**Symptoms**: Image files or keyword-matching files end up in sender/date folders instead of Photos/Content folders
 
 **Solutions**:
 1. **Check file extensions**: Ensure image files have supported extensions (case-insensitive)
-2. **Verify Springfield keywords**: File name must contain one of the supported keywords
-3. **Check logs**: Enable DEBUG logging to see file processing details
+2. **Verify keyword configuration**: Check `content_organization` section in config.yaml
+3. **Test keyword matching**: File name must contain one of the configured keywords (case-insensitive)
+4. **Check logs**: Enable DEBUG logging to see file processing details
 
 ```bash
 # Enable debug logging
@@ -212,7 +261,8 @@ with open('config.yaml') as f:
 - `"Duplicate detected (hash): source == destination"` - Duplicate file found and removed
 - `"File no longer exists, skipping"` - Normal for duplicate events
 - `"Identified as image file, organizing to Photos folder"` - Photos organization working
-- `"Identified as Springfield file, organizing to Springfield folder"` - Springfield detection working
+- `"Identified as [FolderName] file, organizing to [FolderName] folder"` - Content-based organization working
+- `"Processing as default file type, extracting text content"` - Default sender/date organization
 
 ## File Processing Flow
 

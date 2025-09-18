@@ -3,6 +3,10 @@ import logging
 from datetime import datetime
 import pandas as pd
 
+# Initialize logging for the metadata module
+logger = logging.getLogger("Orchestrator.Metadata")
+logger.debug("Metadata extraction module initialized")
+
 def extract_metadata(filepath, config):
     logger = logging.getLogger("Orchestrator.Metadata")
     ext = os.path.splitext(filepath)[1].lower()

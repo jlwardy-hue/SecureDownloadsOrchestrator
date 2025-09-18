@@ -4,6 +4,8 @@ import zipfile
 import tarfile
 import subprocess
 import logging
+import tempfile
+import io
 
 def run_command(cmd, cwd):
     try:
@@ -14,22 +16,17 @@ def run_command(cmd, cwd):
 
 def extract_archives(filepath, config):
     logger = logging.getLogger("Orchestrator.Extract")
-    tmp_unzip = config['directories']['tmp_unzip']
-    os.makedirs(tmp_unzip, exist_ok=True)
+    logger.debug("Archive extraction module initialized")
+    
+    # Use secure random temporary directory instead of predictable path
+    extract_to = tempfile.mkdtemp(prefix="secure_extract_", suffix="_tmp")
+    logger.debug(f"Created secure temporary directory: {extract_to}")
+    
     extracted_files = []
     ext = os.path.splitext(filepath)[1].lower()
-    extract_to = tmp_unzip
 
-    # Clean tmp dir
-    for f in os.listdir(extract_to):
-        fp = os.path.join(extract_to, f)
-        try:
-            if os.path.isfile(fp):
-                os.unlink(fp)
-            elif os.path.isdir(fp):
-                shutil.rmtree(fp)
-        except Exception:
-            pass
+    # No need to clean since we're using a fresh secure temp directory
+    # The directory cleanup will happen in the finally block
 
     try:
         if ext == ".zip":
@@ -62,7 +59,16 @@ def extract_archives(filepath, config):
         return []
 
     # List extracted files
-    for root, dirs, files in os.walk(extract_to):
-        for f in files:
-            extracted_files.append(os.path.join(root, f))
-    return extracted_files
+    try:
+        for root, dirs, files in os.walk(extract_to):
+            for f in files:
+                extracted_files.append(os.path.join(root, f))
+        logger.debug(f"Successfully extracted {len(extracted_files)} files")
+        return extracted_files
+    finally:
+        # Clean up secure temporary directory
+        try:
+            shutil.rmtree(extract_to)
+            logger.debug(f"Cleaned up temporary directory: {extract_to}")
+        except Exception as e:
+            logger.warning(f"Failed to clean up temporary directory {extract_to}: {e}")
