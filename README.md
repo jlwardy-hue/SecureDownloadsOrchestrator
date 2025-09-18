@@ -19,6 +19,17 @@ A Python-based file monitoring and organization system that automatically proces
 
 - **Metadata Extraction**: Creates searchable index of processed files
 
+## Security Features
+
+The SecureDownloadsOrchestrator implements several security hardening measures:
+
+- **Secure Archive Extraction**: Uses cryptographically secure random temporary directories (`tempfile.mkdtemp()`) instead of predictable paths, preventing directory prediction attacks
+- **Virus Scanning Integration**: ClamAV integration with quarantine capability for infected files  
+- **Binary Content Handling**: Proper binary file processing without lossy encoding
+- **Hash-based Deduplication**: SHA256 file hashing prevents duplicate processing
+- **Safe File Organization**: Sanitized directory and filename handling
+- **Comprehensive Logging**: Debug-level visibility into all security operations
+
 ## Installation
 
 1. Clone this repository
