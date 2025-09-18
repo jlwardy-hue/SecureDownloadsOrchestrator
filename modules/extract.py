@@ -26,7 +26,7 @@ def extract_archives(filepath, config):
     ext = os.path.splitext(filepath)[1].lower()
 
     # No need to clean since we're using a fresh secure temp directory
-    # The directory cleanup will happen at the end of the function
+    # The directory cleanup will happen in the finally block
 
     try:
         if ext == ".zip":
