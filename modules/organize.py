@@ -56,9 +56,17 @@ def file_hash(filepath):
     except Exception as e:
         logger.error(f"Failed to calculate hash for {filepath}: {e}")
         # Fallback to timestamp-based hash if file hash fails
-        fallback_hash = hashlib.sha256(f"{filepath}_{os.path.getmtime(filepath)}".encode()).hexdigest()
-        logger.warning(f"Using fallback hash: {fallback_hash[:16]}...")
-        return fallback_hash
+        try:
+            mtime = os.path.getmtime(filepath)
+            fallback_hash = hashlib.sha256(f"{filepath}_{mtime}".encode()).hexdigest()
+            logger.warning(f"Using fallback hash (mtime): {fallback_hash[:16]}...")
+            return fallback_hash
+        except Exception as mtime_exc:
+            logger.warning(f"Could not get mtime for {filepath}: {mtime_exc}. Using current time for fallback hash.")
+            now = datetime.utcnow().isoformat()
+            fallback_hash = hashlib.sha256(f"{filepath}_{now}".encode()).hexdigest()
+            logger.warning(f"Using fallback hash (now): {fallback_hash[:16]}...")
+            return fallback_hash
 
 def extract_text(filepath):
     ext = os.path.splitext(filepath)[1].lower()
