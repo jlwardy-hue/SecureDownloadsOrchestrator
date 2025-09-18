@@ -17,14 +17,48 @@ except ImportError:
     docx = None
     extract_pdf_text = None
 
-IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".tiff", ".bmp"]
+def is_springfield_file(filepath):
+    """Enhanced Springfield file detection with multiple criteria."""
+    base_name = os.path.basename(filepath).lower()
+    
+    # Check various Springfield patterns
+    springfield_patterns = [
+        "springfield",
+        "spring_field", 
+        "spring-field",
+        "simpsons",
+        "homer",
+        "marge",
+        "bart",
+        "lisa",
+        "maggie"
+    ]
+    
+    for pattern in springfield_patterns:
+        if pattern in base_name:
+            return True
+            
+    return False
+
+IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".tiff", ".tif", ".bmp", ".gif", ".webp", ".svg", ".ico", ".raw", ".heic", ".heif"]
 
 def file_hash(filepath):
-    hasher = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        while chunk := f.read(8192):
-            hasher.update(chunk)
-    return hasher.hexdigest()
+    """Calculate SHA256 hash of a file with error handling."""
+    logger = logging.getLogger("Orchestrator.Organize")
+    try:
+        hasher = hashlib.sha256()
+        with open(filepath, "rb") as f:
+            while chunk := f.read(8192):
+                hasher.update(chunk)
+        hash_value = hasher.hexdigest()
+        logger.debug(f"Calculated hash for {filepath}: {hash_value[:16]}...")
+        return hash_value
+    except Exception as e:
+        logger.error(f"Failed to calculate hash for {filepath}: {e}")
+        # Fallback to timestamp-based hash if file hash fails
+        fallback_hash = hashlib.sha256(f"{filepath}_{os.path.getmtime(filepath)}".encode()).hexdigest()
+        logger.warning(f"Using fallback hash: {fallback_hash[:16]}...")
+        return fallback_hash
 
 def extract_text(filepath):
     ext = os.path.splitext(filepath)[1].lower()
@@ -81,36 +115,57 @@ def extract_sender_and_date(text):
 
 def organize_file(filepath, config):
     logger = logging.getLogger("Orchestrator.Organize")
+    
+    # Check if file still exists before processing
+    if not os.path.exists(filepath):
+        logger.warning(f"File no longer exists, skipping: {filepath}")
+        return None
+        
+    logger.debug(f"Starting organization of: {filepath}")
+    
     org_dir = config['directories']['organized']
     base_name = os.path.basename(filepath)
     hash_val = file_hash(filepath)
     ext = os.path.splitext(filepath)[1].lower()
+    
+    logger.debug(f"File details - Name: {base_name}, Extension: {ext}, Hash: {hash_val[:8]}")
 
     # 1. PHOTOS GROUPING
     if ext in IMAGE_EXTENSIONS:
         dest_dir = os.path.join(org_dir, "Photos")
+        logger.debug(f"Identified as image file, organizing to Photos folder")
         os.makedirs(dest_dir, exist_ok=True)
+        logger.debug(f"Created/verified Photos directory: {dest_dir}")
     # 2. SPRINGFIELD GROUPING
-    elif base_name.lower().startswith("springfield"):
+    elif is_springfield_file(filepath):
         dest_dir = os.path.join(org_dir, "Springfield")
+        logger.debug(f"Identified as Springfield file, organizing to Springfield folder")
         os.makedirs(dest_dir, exist_ok=True)
+        logger.debug(f"Created/verified Springfield directory: {dest_dir}")
     # 3. DEFAULT: SENDER/DATE
     else:
+        logger.debug(f"Processing as default file type, extracting text content")
         text = extract_text(filepath)
         sender, sent_date = extract_sender_and_date(text)
         safe_sender = re.sub(r"[^a-zA-Z0-9@._-]", "_", sender)
         safe_date = sent_date if sent_date != "UnknownDate" else "UnknownDate"
         dest_dir = os.path.join(org_dir, safe_sender, safe_date)
+        logger.debug(f"Identified sender: {sender} -> {safe_sender}, date: {sent_date} -> {safe_date}")
         os.makedirs(dest_dir, exist_ok=True)
+        logger.debug(f"Created/verified directory: {dest_dir}")
 
     dest_name = f"{hash_val[:8]}_{base_name}"
     dest_path = os.path.join(dest_dir, dest_name)
+    
+    logger.debug(f"Target destination: {dest_path}")
 
     if os.path.exists(dest_path):
         logger.info(f"Duplicate detected (hash): {filepath} == {dest_path}")
+        logger.debug(f"Removing duplicate source file: {filepath}")
         os.remove(filepath)
         return dest_path
 
+    logger.debug(f"Moving file from {filepath} to {dest_path}")
     shutil.move(filepath, dest_path)
-    logger.info(f"Moved {filepath} to {dest_path}")
+    logger.info(f"Successfully organized: {base_name} -> {dest_path}")
     return dest_path
