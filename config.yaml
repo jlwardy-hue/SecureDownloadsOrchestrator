@@ -1,0 +1,41 @@
+directories:
+  watch: "/home/user/SecureDownloads"
+  quarantine: "/home/user/Quarantine"
+  organized: "/home/user/SecureDownloads_Organized"
+  tmp_unzip: "/home/user/SecureDownloads/tmp_unzip"
+  logs: "./logs/orchestrator.log"
+
+virus_scanning:
+  clamscan_path: "clamscan"
+  virustotal_api_key: ""   # Put your API key here, or leave blank to skip VT
+
+archive_extensions:
+  - ".zip"
+  - ".tar"
+  - ".tar.gz"
+  - ".tgz"
+  - ".tar.bz2"
+  - ".tbz2"
+  - ".rar"
+  - ".7z"
+  - ".gz"
+  - ".bz2"
+  - ".xz"
+  - ".iso"
+  - ".cab"
+  - ".arj"
+  - ".lzh"
+  - ".Z"
+  - ".ace"
+
+log_level: "INFO"
+metadata_extensions:
+  - ".pdf"
+  - ".docx"
+  - ".jpg"
+  - ".jpeg"
+  - ".png"
+  - ".txt"
+  - ".tiff"
+  - ".bmp"
+  - ".dcm"
