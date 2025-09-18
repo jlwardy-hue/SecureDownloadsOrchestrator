@@ -4,6 +4,10 @@ import logging
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+# Initialize logging for the monitor module
+logger = logging.getLogger("Orchestrator.Monitor")
+logger.debug("File monitoring module initialized")
+
 class FolderMonitor:
     def __init__(self, directory, callback):
         self.directory = directory
