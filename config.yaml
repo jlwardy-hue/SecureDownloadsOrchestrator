@@ -1,9 +1,9 @@
 directories:
-  watch: "/tmp/test_dirs/watch"
-  quarantine: "/tmp/test_dirs/quarantine"
-  organized: "/tmp/test_dirs/organized"
-  tmp_unzip: "/tmp/test_dirs/tmp_unzip"
-  logs: "/tmp/test_dirs/orchestrator.log"
+  watch: "/home/user/SecureDownloads"
+  quarantine: "/home/user/Quarantine"
+  organized: "/home/user/SecureDownloads_Organized"
+  tmp_unzip: "/home/user/SecureDownloads/tmp_unzip"
+  logs: "./logs/orchestrator.log"
 
 virus_scanning:
   clamscan_path: "echo"  # Mock clamscan for testing
