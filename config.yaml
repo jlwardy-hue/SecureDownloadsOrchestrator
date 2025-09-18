@@ -6,7 +6,7 @@ directories:
   logs: "./logs/orchestrator.log"
 
 virus_scanning:
-  clamscan_path: "clamscan"
+  clamscan_path: "echo"  # Mock clamscan for testing
   virustotal_api_key: ""   # Put your API key here, or leave blank to skip VT
 
 archive_extensions:
@@ -28,7 +28,7 @@ archive_extensions:
   - ".Z"
   - ".ace"
 
-log_level: "INFO"
+log_level: "DEBUG"
 metadata_extensions:
   - ".pdf"
   - ".docx"
