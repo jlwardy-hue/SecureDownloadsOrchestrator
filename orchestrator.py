@@ -61,9 +61,6 @@ def process_new_file(filepath):
     logger.debug(f"Starting file organization for: {filepath}")
     try:
         organized_path = organize_file(filepath, config)
-        if not organized_path:
-            logger.warning(f"File organization returned no path for: {filepath}")
-            return
     except Exception as e:
         logger.error(f"Error organizing file {filepath}: {e}")
         return
